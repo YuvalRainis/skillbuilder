@@ -13,7 +13,7 @@ Learners engage in:
 The AI provides immediate feedback, grades responses on a 1–5 scale, and adapts future tasks based on performance.
 
 ### Learning Outcomes
-Students learn to:
+Learners learn to:
 - Identify negotiation tactics and manipulation techniques
 - Translate aggressive positions into underlying needs
 - Develop strategic plans (BATNA, value creation, etc.)
