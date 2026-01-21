@@ -4,7 +4,7 @@
 
 **SkillBuilder** is an AI-powered learning platform that teaches **negotiation skills** through interactive practice, intelligent feedback, and metacognitive reflection.
 
-Students engage in:
+Learners engage in:
 - **Real-time negotiations** with an AI counterparty
 - **Strategic analysis** of negotiation transcripts  
 - **Skill practice** with specific techniques (mirroring, validation, etc.)
