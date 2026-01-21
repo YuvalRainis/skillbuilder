@@ -203,47 +203,6 @@ skillbuilder/
 
 ---
 
-## Troubleshooting
-
-### "Failed to fetch" Error
-**Problem**: Frontend can't reach backend
-**Solution**:
-1. Open terminal in `backend/` folder
-2. Run: `python -m uvicorn app:app --reload`
-3. Wait for "Application startup complete"
-4. Refresh frontend (Ctrl+R or Cmd+R)
-
-### "Port 8000 already in use"
-**Solution**: Use a different port:
-```bash
-python -m uvicorn app:app --reload --port 8001
-```
-Then edit `frontend/lib/api.ts` and change `API_BASE` to `http://localhost:8001`
-
-### "ModuleNotFoundError" in Python
-**Solution**: Install dependencies:
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-### Database corrupted
-**Solution**: Delete and rebuild:
-```bash
-cd backend
-rm skillbuilder.db
-# Restart backend – database auto-creates
-```
-
-### "npm: command not found"
-**Solution**: Install Node.js from [nodejs.org](https://nodejs.org/)
-
-### "python: command not found" (Mac/Linux)
-**Solution**: Install Python from [python.org](https://www.python.org/downloads/)
-Or use: `python3 -m venv venv && source venv/bin/activate`
-
----
-
 ## Database
 
 - **Type**: SQLite (zero-setup, single file)
