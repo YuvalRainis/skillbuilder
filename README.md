@@ -41,7 +41,6 @@ pip install -r requirements.txt
 ```bash
 python -m uvicorn app:app --reload
 ```
-Backend runs at **http://localhost:8000**
 
 ### **Step 4: Start the Frontend** (in a new terminal)
 ```bash
@@ -62,6 +61,8 @@ Frontend runs at **http://localhost:3000**
 | **Python** | 3.9+ | [python.org](https://www.python.org/downloads/) |
 | **Node.js** | 18+ | [nodejs.org](https://nodejs.org/) |
 | **Git** | Latest | [git-scm.com](https://git-scm.com/) |
+
+Note: The `package-lock.json` file ensures that `npm install` will work consistently across different npm versions. You can use any npm version that comes with Node.js 18+, and the dependencies will install correctly.
 
 ---
 
