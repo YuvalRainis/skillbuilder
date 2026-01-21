@@ -22,7 +22,7 @@ Learners learn to:
 
 ---
 
-## Quick Start (3 Simple Steps)
+## Quick Start (4 Simple Steps)
 
 ### **Step 1: Get the Code**
 ```bash
@@ -30,15 +30,20 @@ git clone https://github.com/YuvalRainis/skillbuilder.git
 cd skillbuilder
 ```
 
-### **Step 2: Start the Backend**
+### **Step 2: Install Python Dependencies**
 ```bash
 cd backend
 pip install -r requirements.txt
+```
+(This must complete before starting the backend)
+
+### **Step 3: Start the Backend**
+```bash
 python -m uvicorn app:app --reload
 ```
 Backend runs at **http://localhost:8000**
 
-### **Step 3: Start the Frontend** (in a new terminal)
+### **Step 4: Start the Frontend** (in a new terminal)
 ```bash
 cd frontend
 npm install
@@ -83,8 +88,8 @@ Frontend runs at **http://localhost:3000**
 - **Technique**: Practice applying specific skills (mirroring, validation, etc.)
 
 ### **3. Reflection & Grading**
-- Rate difficulty (1–5): Was this task hard or easy?
-- Rate confidence (1–5): How sure are you in your answer?
+- Rate difficulty: Was this task hard or easy?
+- Rate confidence: How sure are you in your answer?
 - Write reflection: What surprised you? What did you learn?
 - See your grade (1–5) and detailed AI feedback
 - Auto-advance to next task
@@ -95,55 +100,6 @@ Frontend runs at **http://localhost:3000**
 
 ---
 
-## Task Types & Examples
-
-### **1. Simulation – Real-time Negotiation**
-- Practice conversations with AI negotiators
-- Get coaching tips to guide your strategy
-- *Examples:* "High-Stakes Salary Negotiation", "Light Negotiation Simulation"
-
-### **2. Analysis – Identify Tactics**
-- Read transcripts and spot negotiation techniques
-- AI explains correct/incorrect answers
-- *Examples:* "Case Study Analysis – Identify Excuses", "Identifying Manipulation Tactics"
-
-### **3. Interpretation – Find Hidden Needs**
-- Read aggressive statements and identify the underlying interests
-- Understand human psychology in negotiation
-- *Examples:* "Translating Positions into Interests"
-
-### **4. Planning – Strategic Thinking**
-- Create negotiation plans (BATNA, log-rolling, etc.)
-- AI provides feedback on plan quality and weaknesses
-- *Examples:* "Building Your BATNA", "Value Creation – Log-Rolling"
-
-### **5. Technique – Apply Skills**
-- Practice specific techniques (mirroring, validation, active listening)
-- AI validates correct application
-- *Examples:* "Mirroring and Validation"
-
----
-
-## 13 Progressive Tasks (3 Difficulty Levels)
-
-### **Level 1: Foundations**
-1. Case Study Analysis – Identify Excuses
-2. Translating Positions into Interests
-3. Light Negotiation Simulation
-
-### **Level 2: Applied Practice**
-4. Identifying Manipulation Tactics
-5. Building Your BATNA
-6. Mirroring and Validation
-7. Medium-Stakes Conversation: Chronic Lateness
-
-### **Level 3: Mastery**
-8. Managing Objections and Emotions
-9. Value Creation – Log-Rolling
-10. High-Stakes Salary Negotiation
-11–13. 3 additional classic negotiation scenarios
-
----
 
 ## Project Architecture
 
@@ -314,41 +270,6 @@ If you want to use a different API key:
 
 ---
 
-## Technology Stack
-
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **AI/LLM** | GROQ API | Fast, free LLM inference |
-| **Backend** | FastAPI | REST API server |
-| **Database** | SQLAlchemy + SQLite | Persistent data storage |
-| **Frontend** | Next.js 16 + React 18 | Modern web UI |
-| **Language** | TypeScript | Type-safe frontend code |
-| **Styling** | CSS3 + Tailwind | Responsive design |
-
----
-
-## For Teachers
-
-### Student Progress
-- All responses are saved in the SQLite database
-- Review student work by examining `skillbuilder.db` or API logs
-
-### Customization
-- Edit `backend/tasks.py` to add new scenarios
-- Modify `backend/llm/` agents to change coaching style
-- Update `frontend/app/components/` for UI changes
-
-### Deployment Notes
-- **This is a local development setup** – no cloud hosting needed
-- For production, consider: gunicorn for backend, Vercel for frontend
-- All inference happens via GROQ API (cloud-based, not local)
-
-### Offline Usage
-- Once started, app runs completely offline except for LLM calls
-- LLM calls go to GROQ (requires internet)
-
----
-
 ## Pedagogical Approach
 
 SkillBuilder is built on evidence-based learning principles:
@@ -361,40 +282,12 @@ SkillBuilder is built on evidence-based learning principles:
 
 ---
 
-## Contributing & Customization
-
-**Add New Tasks:**
-- Edit `backend/tasks.py`
-- Add new negotiation scenario with title, description, difficulty, type
-
-**Modify AI Behavior:**
-- Edit `backend/llm/manager_agent.py` for negotiator personality
-- Edit `backend/llm/coach_agent.py` for coaching style
-- Edit prompts in `backend/llm/prompt_generator.py`
-
-**Customize UI:**
-- Modify components in `frontend/app/components/`
-- Update styles in `frontend/app/globals.css`
-- Change colors, fonts, layout in `frontend/app/layout.tsx`
-
----
-
 ## Notes
 
 - Sessions are stored in browser `localStorage` (survives page refresh)
 - All conversation history is saved to database
 - Coach tips are private (not shown in chat with manager)
 - Teachers can review raw database to see all student activity
-- No user authentication (local use only)
-
----
-
-## Getting Help
-
-1. **Check troubleshooting section above**
-2. **Review code comments** in `backend/app.py` and `frontend/app/page.tsx`
-3. **Check terminal logs** for error messages
-4. **Review API response** using browser developer tools (F12)
 
 ---
 
