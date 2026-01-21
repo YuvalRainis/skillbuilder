@@ -26,7 +26,7 @@ Learners learn to:
 
 ### **Step 1: Get the Code**
 ```bash
-git clone <repository-url>
+git clone https://github.com/YuvalRainis/skillbuilder.git
 cd skillbuilder
 ```
 
@@ -57,8 +57,6 @@ Frontend runs at **http://localhost:3000**
 | **Python** | 3.9+ | [python.org](https://www.python.org/downloads/) |
 | **Node.js** | 18+ | [nodejs.org](https://nodejs.org/) |
 | **Git** | Latest | [git-scm.com](https://git-scm.com/) |
-
-**Note:** The `.env` file with the GROQ API key is already included – no setup needed!
 
 ---
 
