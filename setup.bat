@@ -47,23 +47,25 @@ echo Testing API key...
 REM Create a Python test script
 (
     echo import os
-    echo os.environ['GROQ_API_KEY'] = r'!USER_KEY!'
+    echo import sys
+    echo api_key = sys.argv[1]
+    echo os.environ['GROQ_API_KEY'] = api_key
     echo try:
     echo     from groq import Groq
-    echo     client = Groq^(api_key=r'!USER_KEY!'^)
-    echo     response = client.chat.completions.create^(
+    echo     client = Groq(api_key=api_key)
+    echo     response = client.chat.completions.create(
     echo         model="llama-3.1-8b-instant",
-    echo         messages=[{"role": "user", "content": "Say 'Setup complete'"}],
+    echo         messages=[{"role": "user", "content": "Say test"}],
     echo         max_tokens=10
-    echo     ^)
-    echo     print^("SUCCESS"^)
+    echo     )
+    echo     print("SUCCESS")
     echo except Exception as e:
-    echo     print^("FAILED"^)
-    echo     print^(str^(e^^)^)
+    echo     print("FAILED")
+    echo     print(str(e))
 ) > backend\test_key.py
 
 cd backend
-python test_key.py > test_output.txt 2>&1
+python test_key.py "!USER_KEY!" > test_output.txt 2>&1
 set /p TEST_RESULT=<test_output.txt
 cd ..
 
@@ -71,8 +73,8 @@ if "!TEST_RESULT!"=="SUCCESS" (
     echo ✓ API key is valid!
 ) else (
     echo ✗ API key test failed. Please check your key and try again.
-    del backend\test_key.py
-    del backend\test_output.txt
+    if exist backend\test_key.py del backend\test_key.py
+    if exist backend\test_output.txt del backend\test_output.txt
     goto prompt_key
 )
 
@@ -80,12 +82,11 @@ REM Update the .env file with the new key
 echo Saving API key to backend\.env...
 (
     echo GROQ_API_KEY=!USER_KEY!
-) > backend\.env.tmp
-move /y backend\.env.tmp backend\.env > nul
+) > backend\.env
 
 REM Clean up test files
-del backend\test_key.py
-del backend\test_output.txt
+if exist backend\test_key.py del backend\test_key.py
+if exist backend\test_output.txt del backend\test_output.txt
 
 echo ✓ API key saved successfully!
 echo.
