@@ -21,7 +21,7 @@ for /f "tokens=*" %%A in ('type backend\.env') do (
     )
 )
 
-echo Get your Groq API key from: https://console.groq.com/keys
+echo Get your Groq API key from the Appendix part of the written report.
 echo.
 
 :prompt_key

@@ -43,11 +43,9 @@ bash setup.sh
 ```
 
 The setup script will:
-- ✓ Prompt you to enter your Groq API key (provided separately in the written report)
-- ✓ Validate the API key works
+- ✓ Prompt you to enter your Groq API key (see Appendix part of the written report)
 - ✓ Install all dependencies automatically
 - ✓ Start both backend (port 8000) and frontend (port 3000)
-- ✓ Open the application in your browser
 
 That's it! The system will be running and ready to use.
 Frontend runs at **http://localhost:3000**
