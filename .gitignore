@@ -1,3 +1,7 @@
+# Environment files - NEVER commit with actual API keys
+.env.local
+.env.*.local
+
 # Database files
 *.db
 skillbuilder.db

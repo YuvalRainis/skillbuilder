@@ -22,7 +22,7 @@ Learners learn to:
 
 ---
 
-## Quick Start (4 Simple Steps)
+## Quick Start (2 Simple Steps)
 
 ### **Step 1: Get the Code**
 ```bash
@@ -30,24 +30,26 @@ git clone https://github.com/YuvalRainis/skillbuilder.git
 cd skillbuilder
 ```
 
-### **Step 2: Install Python Dependencies**
-```bash
-cd backend
-pip install -r requirements.txt
-```
-(This must complete before starting the backend)
+### **Step 2: Run the Setup Script**
 
-### **Step 3: Start the Backend**
+**On Windows:**
 ```bash
-python -m uvicorn app:app --reload
+setup.bat
 ```
 
-### **Step 4: Start the Frontend** (in a new terminal)
+**On Mac/Linux:**
 ```bash
-cd frontend
-npm install
-npm run dev
+bash setup.sh
 ```
+
+The setup script will:
+- ✓ Prompt you to enter your Groq API key (provided separately in the written report)
+- ✓ Validate the API key works
+- ✓ Install all dependencies automatically
+- ✓ Start both backend (port 8000) and frontend (port 3000)
+- ✓ Open the application in your browser
+
+That's it! The system will be running and ready to use.
 Frontend runs at **http://localhost:3000**
 
 **Open http://localhost:3000 in your browser and start practicing!**
