@@ -66,6 +66,7 @@ export default function Practice() {
         grade: result.grade?.toString() || "",
         taskTitle: currentTask?.title || "",
         taskType: currentTask?.task_type || "",
+        taskId: currentTask?.id?.toString() || "",
       });
       
       // Redirect to feedback page with all params

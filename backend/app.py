@@ -61,7 +61,13 @@ def task_feedback(session_id: str):
         # Only mark as completed if user actually started it
         if current_task.has_started == 1:
             current_task.status = "completed"
-            print(f"[task_feedback] Marking task '{current_task.title}' as completed")
+            # Save the grade to the database
+            if result.get("grade") is not None:
+                current_task.grade = result["grade"]
+                current_task.feedback = result.get("feedback", "")
+                print(f"[task_feedback] Marking task '{current_task.title}' as completed with grade {result['grade']}")
+            else:
+                print(f"[task_feedback] Marking task '{current_task.title}' as completed (no grade)")
         else:
             # Task was never started, don't mark as complete
             print(f"[task_feedback] Task '{current_task.title}' was never started, not marking as completed")
@@ -302,10 +308,22 @@ def evaluate_analysis_response(req: AnalysisResponseRequest):
     """Evaluate an analysis task response."""
     try:
         result = evaluate_analysis(req.question, req.response, req.task_title)
+        
+        # Convert correctness level to grade (backend-controlled)
+        correctness_level = result.get("correctness_level", "minimal").lower()
+        grade_map = {
+            "excellent": 5,
+            "good": 4,
+            "acceptable": 3,
+            "weak": 2,
+            "minimal": 1
+        }
+        grade = grade_map.get(correctness_level, 1)
+        
         return {
-            "correct": result.get("correct", False),
+            "correctness_level": correctness_level,
             "feedback": result.get("feedback", ""),
-            "grade": result.get("grade", 0),
+            "grade": grade,
             "task_title": req.task_title
         }
     except Exception as e:
@@ -318,13 +336,39 @@ def evaluate_interpretation_response(req: InterpretationResponseRequest):
     """Evaluate an interpretation task response."""
     try:
         result = evaluate_interpretation(req.position, req.response, req.task_title)
+        
+        # Convert insight level to grade (backend-controlled)
+        insight_level = result.get("insight_level", "minimal").lower()
+        grade_map = {
+            "excellent": 5,
+            "good": 4,
+            "acceptable": 3,
+            "weak": 2,
+            "minimal": 1
+        }
+        grade = grade_map.get(insight_level, 1)
+        
+        # Build feedback text
+        feedback_parts = []
+        coach_message = result.get("coach_message", "")
+        feedback = result.get("feedback", "")
+        suggestion = result.get("suggestion", "")
+        
+        if coach_message:
+            feedback_parts.append(f"Coach: {coach_message}")
+        if feedback:
+            feedback_parts.append(f"Feedback: {feedback}")
+        if suggestion:
+            feedback_parts.append(f"Suggestion: {suggestion}")
+        
+        feedback_text = "\n\n".join(feedback_parts) if feedback_parts else "Interpretation evaluation complete."
+        
         return {
-            "reasonable": result.get("reasonable", False),
-            "insight_depth": result.get("insight_depth", "shallow"),
-            "grade": result.get("grade", 0),
-            "coach_message": result.get("coach_message", ""),
-            "feedback": result.get("feedback", ""),
-            "suggestion": result.get("suggestion", ""),
+            "insight_level": insight_level,
+            "grade": grade,
+            "feedback": feedback_text,
+            "coach_message": coach_message,
+            "suggestion": suggestion,
             "task_title": req.task_title
         }
     except Exception as e:
@@ -339,14 +383,24 @@ def evaluate_plan_response(req: PlanningResponseRequest):
         scenario_text = f"{req.scenario}\n\nConstraints: {req.constraints}" if req.constraints else req.scenario
         result = evaluate_plan(scenario_text, req.response, req.task_title)
         
-        plan_quality = result.get("plan_quality", "moderate")
+        # Convert plan quality to grade (backend-controlled)
+        plan_quality = result.get("plan_quality", "minimal").lower()
+        grade_map = {
+            "excellent": 5,
+            "good": 4,
+            "acceptable": 3,
+            "weak": 2,
+            "minimal": 1
+        }
+        grade = grade_map.get(plan_quality, 1)
+        
+        # Build feedback text
+        feedback_parts = []
         coach_message = result.get("coach_message", "")
         strengths = result.get("strengths", "")
         gaps = result.get("gaps", "")
         suggested_refinement = result.get("suggested_refinement", "")
         
-        # Build feedback text
-        feedback_parts = []
         if coach_message:
             feedback_parts.append(f"Coach: {coach_message}")
         if strengths:
@@ -357,10 +411,6 @@ def evaluate_plan_response(req: PlanningResponseRequest):
             feedback_parts.append(f"Suggested Refinement: {suggested_refinement}")
         
         feedback_text = "\n\n".join(feedback_parts) if feedback_parts else "Plan evaluation complete."
-        
-        # Grade based on quality
-        grade_map = {"poor": 1, "moderate": 2, "good": 3, "strong": 4, "excellent": 5}
-        grade = grade_map.get(plan_quality.lower(), 2)
         
         return {
             "feedback": feedback_text,
@@ -388,12 +438,40 @@ def evaluate_technique_response(req: TechniqueResponseRequest):
             req.other_person_statement,
             req.task_title
         )
+        
+        # Convert technique quality to grade (backend-controlled)
+        technique_quality = result.get("technique_quality", "minimal").lower()
+        grade_map = {
+            "excellent": 5,
+            "good": 4,
+            "acceptable": 3,
+            "weak": 2,
+            "minimal": 1
+        }
+        grade = grade_map.get(technique_quality, 1)
+        
+        # Build feedback text
+        feedback_parts = []
+        coach_message = result.get("coach_message", "")
+        analysis = result.get("analysis", "")
+        example = result.get("example", "")
+        
+        if coach_message:
+            feedback_parts.append(f"Coach: {coach_message}")
+        if analysis:
+            feedback_parts.append(f"Analysis: {analysis}")
+        if example:
+            feedback_parts.append(f"Example: {example}")
+        
+        feedback_text = "\n\n".join(feedback_parts) if feedback_parts else "Technique evaluation complete."
+        
         return {
-            "technique_applied": result.get("technique_applied", False),
-            "quality": result.get("quality", "poor"),
-            "coach_message": result.get("coach_message", ""),
-            "analysis": result.get("analysis", ""),
-            "example": result.get("example", ""),
+            "technique_quality": technique_quality,
+            "grade": grade,
+            "feedback": feedback_text,
+            "coach_message": coach_message,
+            "analysis": analysis,
+            "example": example,
             "task_title": req.task_title
         }
     except Exception as e:

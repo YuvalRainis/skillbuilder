@@ -105,7 +105,9 @@ def get_system_prompt(task_context: dict = None) -> str:
     """Generate dynamic system prompt based on task context."""
     if task_context and "objective" in task_context:
         objective = task_context["objective"]
-        # Determine context from objective
+        title = task_context.get("title", "").lower()
+        
+        # Determine context from objective and title
         if "movie" in objective.lower():
             return """
 You are a friend/peer in a casual movie selection negotiation.
@@ -155,6 +157,7 @@ BEHAVIOR GUIDELINES:
 - Act naturally and conversationally as the character
 - Respond only as the other party—don't give advice or coaching
 - Output ONLY your dialogue response, nothing else
+- NEVER repeat or echo the user's message back to them
 """
         elif "salary" in objective.lower():
             return """
@@ -203,6 +206,62 @@ BEHAVIOR GUIDELINES:
 - Act realistically and professionally as the manager
 - Respond only as the character—don't give advice
 - Output ONLY your dialogue response, nothing else
+- NEVER repeat or echo the user's message back to them
+"""
+        elif "late" in objective.lower() or "late" in title or "difficult conversation" in objective.lower() or "boundaries" in objective.lower() or "deadline" in objective.lower():
+            return """
+You are a colleague/employee in a difficult conversation about work issues.
+
+CRITICAL INSTRUCTION - YOU MUST ENGAGE WITH SPECIFIC DETAILS:
+❌ NEVER use generic acknowledgments like:
+   - "Great, that sounds good!"
+   - "Perfect, let's move forward"
+   - "Sounds good"
+   - "That works"
+   - "OK, let's do that"
+
+✅ INSTEAD, you MUST:
+1. Reference SPECIFIC details from what the user said
+2. Show realistic concerns, questions, or commitments
+3. Propose concrete actions or ask for clarification
+4. Keep the problem-solving conversation going
+
+YOUR ROLE - REALISTIC HUMAN BEHAVIOR:
+- You're being confronted about a problem (lateness, boundaries, deadlines, etc.)
+- First response: Defensive or explanatory (give reasons/context)
+- If they show empathy: Gradually open up, but with realistic concerns
+- If they propose a solution: Engage with SPECIFICS, not generic agreement
+- You must take OWNERSHIP and propose CONCRETE next steps
+
+RESPONSE STRUCTURE - EVERY MESSAGE MUST INCLUDE:
+1. Acknowledge their specific point ("I hear you about the Thursday deadline...")
+2. Show your perspective or concern ("The thing is, I've been juggling X and Y...")
+3. Propose a concrete action ("What if I prioritize Task A and B this week, and we check in Friday?")
+
+EXAMPLES OF GOOD RESPONSES:
+User: "Can we do check-ins on Thursdays and see if you need an extension?"
+✅ "That makes sense. I can prioritize the report and client follow-ups to stay on track this week. If I see I'm falling behind by Wednesday, I'll let you know then so we can adjust the Thursday check-in. Does that work?"
+
+User: "Let's focus on the urgent tasks first and revisit the rest on Friday."
+✅ "Got it. I'll knock out the presentation and budget analysis first since those are time-sensitive. For Friday—can we also talk about re-prioritizing the other backlog items? I want to make sure I'm not setting myself up to fall behind again."
+
+EXAMPLES OF BAD RESPONSES (NEVER DO THIS):
+❌ "Great, that sounds good!" (no specifics, no engagement)
+❌ "Perfect, let's move forward." (no concrete actions)
+❌ "OK, will do!" (no details about what you'll do)
+❌ "Sounds like a plan!" (no acknowledgment of their specific suggestion)
+
+ONLY END THE CONVERSATION IF:
+The user explicitly says: "That's all," "Let's wrap up," "Thanks, we're done," or similar closure language.
+
+Otherwise, KEEP ENGAGING with specifics, concerns, and concrete suggestions.
+
+BEHAVIOR GUIDELINES:
+- Output ONLY your dialogue response (no meta-commentary)
+- Stay in character as the colleague/employee
+- Show realistic emotions (stress, relief, commitment)
+- Reference specific tasks, timelines, or issues mentioned
+- NEVER repeat or echo the user's message back to them
 """
     
     # Default fallback
@@ -235,6 +294,7 @@ BEHAVIOR GUIDELINES:
 - Stay in character throughout
 - Respond only as the other party—no advice or coaching
 - Output ONLY your dialogue response, nothing else
+- NEVER repeat or echo the user's message back to them
 """
 
 SCENARIO_PROMPT = """
@@ -291,11 +351,12 @@ def manager_reply(
         if manager_position:
             history_info += f"\n\n[YOUR INITIAL POSITION/PREFERENCE]\nYou stated at the beginning: {manager_position}\nStay true to this preference and defend it."
     
-    user_prompt = f"""
-User said:
-"{user_message}"{history_info}{task_info}
+    user_prompt = f"""{history_info}{task_info}
 
-Respond naturally as the other party, showing personality and conviction in your position. Continue negotiating naturally.
+[LATEST MESSAGE FROM USER]
+{user_message}
+
+CRITICAL: Do NOT repeat or echo the user's message. Respond ONLY as your character would naturally respond. Output ONLY your direct reply.
 """
     return call_llm(system_prompt, user_prompt)
 

@@ -103,27 +103,54 @@ Generate an interpretation exercise asking students to identify hidden needs beh
 
 
 # PLANNING TASK PROMPTS
-GENERATE_PLANNING_PROMPT = """
-You are creating a planning exercise for a negotiation skills app.
+GENERATE_BATNA_PROMPT = """
+You are creating a BATNA planning exercise for a negotiation skills app.
+
+Create a realistic scenario where someone needs to develop their Best Alternative To a Negotiated Agreement.
 
 Generate:
-1. A clear scenario describing the negotiation context
-2. Specific constraints or issues to address
-3. Clear instructions on what plan to create (BATNA, log-rolling, etc.)
+1. A specific negotiation scenario (e.g., salary negotiation at current job, vendor contract renewal, etc.)
+2. Realistic constraints they face
+3. Clear instruction on what BATNA plan to create
 
-Keep the scenario realistic and challenging but not overwhelming.
+Keep scenarios concrete and relatable - use real job titles, realistic numbers, actual company situations.
 
 {performance_context}
 
-Output format:
+CRITICAL: Output EXACTLY in this format with NO extra text:
 SCENARIO:
-[The scenario description]
+[2-3 sentences describing the specific negotiation situation]
 
 CONSTRAINTS:
-[What issues or constraints the student must consider]
+[2-3 realistic constraints or challenges they face]
 
 INSTRUCTION:
-[What plan they should create]
+[Clear instruction on developing a BATNA - what they'll do if negotiation fails]
+"""
+
+GENERATE_LOGROLLING_PROMPT = """
+You are creating a log-rolling (value creation) exercise for a negotiation skills app.
+
+Log-rolling means trading issues: giving up something you care less about to get something more important to you.
+
+Generate:
+1. A negotiation scenario with MULTIPLE issues to negotiate (e.g., salary, vacation days, remote work, start date)
+2. Different priorities for each party
+3. Clear instruction on how to identify trade-offs
+
+Keep scenarios realistic with 3-4 negotiable issues.
+
+{performance_context}
+
+CRITICAL: Output EXACTLY in this format with NO extra text:
+SCENARIO:
+[2-3 sentences describing negotiation with multiple issues at stake]
+
+CONSTRAINTS:
+[What each party cares about most/least - show conflicting priorities]
+
+INSTRUCTION:
+[Clear instruction to identify what you'll concede to gain what you want]
 """
 
 def generate_planning_task(task_title: str, task_objective: str, performance_context: str = "") -> dict:
@@ -135,27 +162,67 @@ def generate_planning_task(task_title: str, task_objective: str, performance_con
         performance_context: Performance data to adjust complexity (optional)
     Returns: {scenario: str, constraints: str, instruction: str}
     """
-    user_prompt = f"""
+    # Determine task type from title
+    title_lower = task_title.lower()
+    if "batna" in title_lower:
+        prompt_template = GENERATE_BATNA_PROMPT
+        task_type = "BATNA"
+        user_prompt = f"""
 Task Title: {task_title}
 Task Objective: {task_objective}
 
-Generate a planning exercise for negotiation preparation.
+Generate a realistic BATNA planning exercise. Make it specific and relatable.
 """
+    elif "log-rolling" in title_lower or "value creation" in title_lower:
+        prompt_template = GENERATE_LOGROLLING_PROMPT
+        task_type = "Log-Rolling"
+        user_prompt = f"""
+Task Title: {task_title}
+Task Objective: {task_objective}
+
+Generate a realistic log-rolling exercise with multiple negotiable issues. Make it specific and relatable.
+"""
+    else:
+        # Generic planning task
+        prompt_template = GENERATE_BATNA_PROMPT  # Default to BATNA structure
+        task_type = "Planning"
+        user_prompt = f"""
+Task Title: {task_title}
+Task Objective: {task_objective}
+
+Generate a realistic planning exercise for negotiation preparation.
+"""
+    
     try:
-        prompt = GENERATE_PLANNING_PROMPT.format(performance_context=performance_context or "")
+        prompt = prompt_template.format(performance_context=performance_context or "")
         raw = call_llm(prompt, user_prompt)
+        print(f"[generate_planning_task] Task type: {task_type}")
+        print(f"[generate_planning_task] LLM raw response:\n{raw}")
         result = parse_task_response(raw)
+        print(f"[generate_planning_task] Parsed result: {result}")
         if result and "scenario" in result and "constraints" in result and "instruction" in result:
             return result
+        else:
+            print(f"[generate_planning_task] Missing keys in result. Got keys: {list(result.keys())}")
     except Exception as e:
         print(f"[generate_planning_task] LLM error: {e}")
+        import traceback
+        traceback.print_exc()
     
-    # Fallback content
-    return {
-        "scenario": f"You are negotiating about {task_title.lower()}. The other party has made an initial offer that you find partially acceptable but not ideal.",
-        "constraints": "Budget: Limited\\nTimeline: 1 week\\nStakeholders: 2 decision-makers",
-        "instruction": "Create a step-by-step plan for your negotiation. Consider your BATNA, priorities, and potential trade-offs."
-    }
+    # Fallback content - task-specific
+    print("[generate_planning_task] Using fallback content")
+    if "log-rolling" in task_title.lower() or "value creation" in task_title.lower():
+        return {
+            "scenario": "You're negotiating a new job offer. There are 4 issues on the table: base salary, signing bonus, vacation days, and remote work days per week.",
+            "constraints": "The company values in-office presence. You value work-life balance and flexibility. Budget allows some negotiation on total compensation.",
+            "instruction": "Identify which issues matter most to you and which you'd be willing to concede. Create a trade-off strategy: what will you give up to get what you really want?"
+        }
+    else:
+        return {
+            "scenario": f"You are negotiating about {task_title.lower()}. The other party has made an initial offer that you find partially acceptable but not ideal.",
+            "constraints": "Budget: Limited\\nTimeline: 1 week\\nStakeholders: 2 decision-makers",
+            "instruction": "Create a step-by-step plan for your negotiation. Consider your BATNA, priorities, and potential trade-offs."
+        }
 
 
 # TECHNIQUE TASK PROMPTS 
@@ -227,10 +294,12 @@ def parse_task_response(raw: str) -> dict:
     current_value = ""
     
     for line in lines:
-        if ":" in line and line.split(":")[0].isupper():
+        if ":" in line and line.split(":")[0].strip().replace("*", "").isupper():
             if current_key and current_value:
                 result[current_key.lower()] = current_value.strip()
-            current_key = line.split(":")[0]
+            # Strip markdown formatting and get clean key
+            key_part = line.split(":")[0].strip().replace("*", "")
+            current_key = key_part
             current_value = ":".join(line.split(":")[1:]).strip()
         elif current_key:
             current_value += "\n" + line
